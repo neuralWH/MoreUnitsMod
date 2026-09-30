@@ -6,15 +6,18 @@ import arc.struct.Seq;
 
 public class RoundedPolygon {
 
+    // 构建圆角多边形
     public static Seq<Vec2> build(Seq<Vec2> hull, float radius) {
         int n = hull.size;
         Seq<Vec2> result = new Seq<>();
         if (n < 2) return result;
 
+        // 两点退化为胶囊形
         if (n == 2) {
             return CapsulePath.sample(hull.get(0), hull.get(1), radius);
         }
 
+        // 合并夹角小于20度的顶点
         Seq<Vec2> filtered = mergeSharpVertices(hull, 20f);
         n = filtered.size;
 
@@ -54,6 +57,7 @@ public class RoundedPolygon {
         return result;
     }
 
+    // 合并夹角小于指定角度的顶点
     public static Seq<Vec2> mergeSharpVertices(Seq<Vec2> hull, float angleDeg) {
         int n = hull.size;
         if (n < 3) return new Seq<>(hull);
