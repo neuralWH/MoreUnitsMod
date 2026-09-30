@@ -1,5 +1,6 @@
 package tianyou;
 
+import mindustry.entities.part.ShootPattern;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.type.weapons.PointDefenseWeapon;
@@ -43,13 +44,12 @@ public class TianyouUnit {
             // 主炮副发射：6颗等离子追踪炮弹
             weapons.add(new Weapon("tianyou-cannon-homing") {{
                 x = 14f; y = -6f;
-                reload = 72f;         // 与激光同步
+                reload = 72f;
                 mirror = false;
                 shootY = 12f;
                 recoil = 4f;
                 bullet = TianyouBullets.plasmaHoming;
-                burst = 6;            // 每次6颗
-                burstSpacing = 4f;    // 间隔4帧
+                shoot = new ShootPattern(6, 4f);   // 6连发，间隔4帧
             }});
 
             // 副炮：4发等离子追踪导弹
@@ -60,8 +60,7 @@ public class TianyouUnit {
                 shootY = 8f;
                 recoil = 4f;
                 bullet = TianyouBullets.plasmaMissile;
-                burst = 4;            // 每次4发
-                burstSpacing = 6f;    // 间隔6帧
+                shoot = new ShootPattern(4, 6f);   // 4连发，间隔6帧
             }});
 
             // 点防御炮台
