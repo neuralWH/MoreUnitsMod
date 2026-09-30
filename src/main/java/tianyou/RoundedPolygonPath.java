@@ -1,75 +1,60 @@
 package tianyou;
 
-import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
 
-public class RoundedPolygon {
+public class RoundedPolygonPath extends ShieldPath {
 
-    public static Seq<Vec2> build(Seq<Vec2> hull, float radius) {
-        int n = hull.size;
-        Seq<Vec2> result = new Seq<>();
-        if (n < 2) return result;
+    public final Seq<Vec2> points = new Seq<>();
+    public float[] cumLen;
+    public float totalLen;
 
-        if (n == 2) {
-            return CapsulePath.sample(hull.get(0), hull.get(1), radius);
-        }
-
-        Seq<Vec2> filtered = mergeSharpVertices(hull, 20f);
-        n = filtered.size;
-
-        for (int i = 0; i < n; i++) {
-            Vec2 prev = filtered.get((i - 1 + n) % n);
-            Vec2 cur = filtered.get(i);
-            Vec2 next = filtered.get((i + 1) % n);
-
-            Vec2 d1 = new Vec2(cur).sub(prev).nor();
-            Vec2 d2 = new Vec2(next).sub(cur).nor();
-
-            Vec2 n1 = new Vec2(-d1.y, d1.x);
-            Vec2 n2 = new Vec2(-d2.y, d2.x);
-
-            Vec2 bis = new Vec2(n1).add(n2).nor();
-            float cosHalf = bis.dot(n1);
-            float d = cosHalf > 0.01f ? radius / cosHalf : radius;
-
-            Vec2 arcCenter = new Vec2(cur).add(bis.scl(d));
-
-            float startAngle = Mathf.atan2(n1.y, n1.x);
-            float endAngle = Mathf.atan2(n2.y, n2.x);
-            float sweep = endAngle - startAngle;
-            if (sweep < 0) sweep += Mathf.PI2;
-
-            int samples = Math.max(4, (int) (sweep / 0.2f));
-            for (int s = 0; s <= samples; s++) {
-                float t = s / (float) samples;
-                float angle = startAngle + sweep * t;
-                result.add(new Vec2(
-                    arcCenter.x + Mathf.cos(angle) * radius,
-                    arcCenter.y + Mathf.sin(angle) * radius
-                ));
-            }
-        }
-
-        return result;
+    public RoundedPolygonPath(Type type, boolean clockwise) {
+        this.type = type;
+        this.clockwise = clockwise;
     }
 
-    public static Seq<Vec2> mergeSharpVertices(Seq<Vec2> hull, float angleDeg) {
-        int n = hull.size;
-        if (n < 3) return new Seq<>(hull);
-        Seq<Vec2> result = new Seq<>();
-        float cosLimit = Mathf.cosDeg(180f - angleDeg);
-        for (int i = 0; i < n; i++) {
-            Vec2 prev = hull.get((i - 1 + n) % n);
-            Vec2 cur = hull.get(i);
-            Vec2 next = hull.get((i + 1) % n);
+    public void build(Seq<Vec2> hull, float targetDistance) {
+        Seq<Vec2> filtered = RoundedPolygon.mergeSharpVertices(hull, 20f);
+        points.clear();
+        points.addAll(RoundedPolygon.build(filtered, targetDistance));
+        computeArcLength();
+    }
 
-            Vec2 d1 = new Vec2(cur).sub(prev).nor();
-            Vec2 d2 = new Vec2(next).sub(cur).nor();
-            float cos = d1.dot(d2);
-
-            if (cos < cosLimit) result.add(new Vec2(cur));
+    public void computeArcLength() {
+        int n = points.size;
+        if (n < 2) { totalLen = 0; return; }
+        cumLen = new float[n];
+        for (int i = 1; i < n; i++) {
+            cumLen[i] = cumLen[i - 1] + points.get(i).dst(points.get(i - 1));
         }
-        return result.size < 3 ? new Seq<>(hull) : result;
+        totalLen = cumLen[n - 1] + points.get(0).dst(points.get(n - 1));
+    }
+
+    @Override
+    public Vec2 pointAt(float t) {
+        if (points.isEmpty()) return new Vec2();
+        float target = t * totalLen;
+        for (int i = 1; i < points.size; i++) {
+            if (cumLen[i] >= target) {
+                float segT = (cumLen[i] - cumLen[i - 1]) > 0.001f
+                    ? (target - cumLen[i - 1]) / (cumLen[i] - cumLen[i - 1])
+                    : 0f;
+                return new Vec2(points.get(i - 1)).lerp(points.get(i), segT);
+            }
+        }
+        return new Vec2(points.first());
+    }
+
+    @Override
+    public Vec2 tangentAt(float t) {
+        Vec2 p1 = pointAt(t);
+        Vec2 p2 = pointAt((t + 0.001f) % 1f);
+        return new Vec2(p2).sub(p1).nor();
+    }
+
+    @Override
+    public float length() {
+        return totalLen;
     }
 }
