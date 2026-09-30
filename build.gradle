@@ -1,6 +1,6 @@
 apply plugin: "java"
 
-sourceSets.main.java.srcDirs = ["src"]
+sourceSets.main.java.srcDirs = ["src/main/java"]
 
 ext{
     // Mindustry version to depend on.
@@ -8,7 +8,7 @@ ext{
     // - latest: depend on the latest release of mindustry
     // - be: depend on the very latest commit of mindustry
     // - v<number>: depend on a specific version
-    mindustryVersion = "v160"
+    mindustryVersion = "v159"
     isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
@@ -69,7 +69,7 @@ tasks.register('jarAndroid'){
 }
 
 jar{
-    archiveFileName = "${project.name}Desktop.jar"
+    archiveFileName = "${project.name}.jar"
 
     from{
         configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
