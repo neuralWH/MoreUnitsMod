@@ -7,6 +7,7 @@ import mindustry.entities.bullet.*;
 public class TianyouBullets {
 
     public static BulletType plasmaLaser;
+    public static BulletType plasmaHoming;
     public static BulletType plasmaMissile;
     public static BulletType pointDefense;
 
@@ -26,6 +27,23 @@ public class TianyouBullets {
             };
         }};
 
+        // 等离子追踪炮弹（主炮副发射）：200伤，1格直径
+        plasmaHoming = new BasicBulletType() {{
+            speed = 8f;
+            damage = 200f;
+            lifetime = 60f;
+            width = 10f;
+            height = 10f;
+            homingPower = 0.2f;
+            homingRange = 240f;
+            homingDelay = 4f;
+            splashDamage = 200f;
+            splashDamageRadius = 4f;   // 1格直径
+            hitEffect = Fx.hitLaserBlast;
+            frontColor = Color.valueOf("ffd7a0");
+            backColor = Color.valueOf("ffb054");
+        }};
+
         // 等离子追踪导弹（副炮）：800伤，3格直径范围
         plasmaMissile = new MissileBulletType() {{
             speed = 6f;
@@ -34,7 +52,7 @@ public class TianyouBullets {
             homingPower = 0.15f;
             homingRange = 200f;
             splashDamage = 800f;
-            splashDamageRadius = 12f;   // 3格直径
+            splashDamageRadius = 12f;  // 3格直径
             hitEffect = Fx.blastExplosion;
             trailEffect = Fx.missileTrail;
             trailParam = 4f;
