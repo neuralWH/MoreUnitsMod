@@ -38,6 +38,7 @@ public class TianyouUnit {
 
             abilities.add(new SharedShieldAbility());
 
+            // 主炮：穿透性等离子激光（1束）
             weapons.add(new Weapon("tianyou-cannon-laser") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -47,6 +48,7 @@ public class TianyouUnit {
                 bullet = TianyouBullets.plasmaLaser;
             }});
 
+            // 主炮副发射：6颗等离子追踪炮弹
             weapons.add(new Weapon("tianyou-cannon-homing") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -60,6 +62,7 @@ public class TianyouUnit {
                 }};
             }});
 
+            // 副炮：4发等离子追踪导弹
             weapons.add(new Weapon("tianyou-missile") {{
                 x = 8f; y = -10f;
                 reload = 120f;
@@ -73,6 +76,7 @@ public class TianyouUnit {
                 }};
             }});
 
+            // 点防御炮台
             weapons.add(new PointDefenseWeapon("tianyou-pointdefense") {{
                 x = -10f; y = 6f;
                 reload = 180f;
