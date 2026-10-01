@@ -15,8 +15,8 @@ public class TianyouUnit {
         tianyou = new UnitType("tianyou") {{
             // 使用与天帝相同的腿式单位构造器
             constructor = LegsUnit::create;
-            // 设置组装厂AI控制器，满足组装厂生产要求
-            defaultController = u -> new AssemblerAI();
+            // Prov 是无参供应器，lambda 不能带参数
+            defaultController = () -> new AssemblerAI();
 
             // 基础属性
             health = 32000f;
