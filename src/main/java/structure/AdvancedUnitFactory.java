@@ -2,6 +2,8 @@ package structure;
 
 import arc.struct.Seq;
 import mindustry.content.Blocks;
+import mindustry.content.Items;
+import mindustry.content.Liquids;
 import mindustry.content.UnitTypes;
 import mindustry.type.Category;
 import mindustry.type.ItemStack;
@@ -14,25 +16,32 @@ public class AdvancedUnitFactory extends UnitAssembler {
     public AdvancedUnitFactory(String name) {
         super(name);
 
+        // 套用原版机甲组装厂外观与属性
         this.size = 5;
         this.health = 3600;
         this.buildTime = 60f * 46.75f;
+        this.itemCapacity = 10;
+        this.liquidCapacity = 120;
+        this.tier = 3;   // 去除模块等级判定：不需要模块即可生产
         this.category = Category.units;
 
+        // 建造花费
         this.requirements(Category.units, ItemStack.with(
-            mindustry.content.Items.silicon, 600,
-            mindustry.content.Items.oxide, 1000,
-            mindustry.content.Items.thorium, 550,
-            mindustry.content.Items.carbide, 200,
-            mindustry.content.Items.phaseFabric, 200
+            Items.silicon, 600,
+            Items.oxide, 1000,
+            Items.thorium, 550,
+            Items.carbide, 200,
+            Items.phaseFabric, 200
         ));
 
+        // 耗电与耗液体
         this.consumePower(180f / 60f);
+        this.consumeLiquid(Liquids.ozone, 12f / 60f);
 
-        // 生产天佑的配方
+        // 只生产天佑
         this.plans.add(new AssemblerUnitPlan(
             TianyouUnit.tianyou,
-            60f * 300f,
+            60f * 300f,   // 300秒
             Seq.with(
                 new PayloadStack(UnitTypes.merui, 6),
                 new PayloadStack(UnitTypes.cleroi, 8),
