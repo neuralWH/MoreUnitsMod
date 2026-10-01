@@ -8,7 +8,7 @@ import mindustry.graphics.Pal;
 
 public class SharedShieldAbility extends Ability {
 
-    public static final float VISION_RADIUS = 28f * 8f;
+    public static final float VISION_RADIUS = 48f;
     public static final float CONNECT_DIST = 24f * 8f;
     public static final float CLUSTER_RADIUS = 12f * 8f;
 
