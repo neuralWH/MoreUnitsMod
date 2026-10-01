@@ -1,5 +1,6 @@
 package tianyou;
 
+import mindustry.content.Planet;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.*;
 import mindustry.type.*;
@@ -25,7 +26,10 @@ public class TianyouUnit {
             canBoost = false;
             canDrown = false;
             mechStepParticles = true;
-            allowedInPayloads = true;  // 允许作为载荷，沙盒载荷源可见
+            allowedInPayloads = true;  // 允许作为载荷
+
+            // 指定显示在埃里克尔星球的数据库中
+            shownPlanets.add(Planet.erekir);
 
             localizedName = "@unit.tianyou.name";
             description = "@unit.tianyou.description";
@@ -35,7 +39,7 @@ public class TianyouUnit {
             // 主炮：穿透性等离子激光（1束）
             weapons.add(new Weapon("tianyou-cannon-laser") {{
                 x = 14f; y = -6f;
-                reload = 72f;          // 1.2秒
+                reload = 72f;
                 mirror = false;
                 shootY = 12f;
                 recoil = 8f;
@@ -59,7 +63,7 @@ public class TianyouUnit {
             // 副炮：4发等离子追踪导弹
             weapons.add(new Weapon("tianyou-missile") {{
                 x = 8f; y = -10f;
-                reload = 120f;         // 2秒
+                reload = 120f;
                 mirror = true;
                 shootY = 8f;
                 recoil = 4f;
@@ -73,7 +77,7 @@ public class TianyouUnit {
             // 点防御炮台
             weapons.add(new PointDefenseWeapon("tianyou-pointdefense") {{
                 x = -10f; y = 6f;
-                reload = 180f;         // 3秒
+                reload = 180f;
                 mirror = true;
                 shootY = 5f;
                 recoil = 2f;
