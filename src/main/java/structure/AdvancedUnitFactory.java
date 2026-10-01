@@ -22,10 +22,6 @@ public class AdvancedUnitFactory extends UnitAssembler {
         this.buildTime = 60f * 46.75f;
         this.itemCapacity = 10;
         this.liquidCapacity = 120;
-
-        // 关键：设 tier 为 6，让工厂直接拥有 T6 生产能力
-        this.tier = 6;
-
         this.category = Category.units;
 
         // 建造花费
@@ -44,7 +40,7 @@ public class AdvancedUnitFactory extends UnitAssembler {
         // 只生产天佑
         this.plans.add(new AssemblerUnitPlan(
             TianyouUnit.tianyou,
-            60f * 300f,   // 300秒
+            60f * 300f,
             Seq.with(
                 new PayloadStack(UnitTypes.merui, 6),
                 new PayloadStack(UnitTypes.cleroi, 8),
