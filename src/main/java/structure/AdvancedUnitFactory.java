@@ -24,6 +24,9 @@ public class AdvancedUnitFactory extends UnitAssembler {
         this.liquidCapacity = 120;
         this.category = Category.units;
 
+        // 关键：确保载荷源能显示大型单位（6格单位 = 48世界单位）
+        this.clipSize = 120;
+
         // 建造花费
         this.requirements(Category.units, ItemStack.with(
             Items.silicon, 600,
@@ -40,7 +43,7 @@ public class AdvancedUnitFactory extends UnitAssembler {
         // 只生产天佑
         this.plans.add(new AssemblerUnitPlan(
             TianyouUnit.tianyou,
-            60f * 300f,
+            60f * 300f,   // 300秒
             Seq.with(
                 new PayloadStack(UnitTypes.merui, 6),
                 new PayloadStack(UnitTypes.cleroi, 8),
