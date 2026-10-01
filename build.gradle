@@ -80,6 +80,7 @@ jar{
     }
 
     from("assets/"){
+        into "assets"
         include "**"
     }
 }
