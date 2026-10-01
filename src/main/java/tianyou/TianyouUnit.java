@@ -25,7 +25,7 @@ public class TianyouUnit {
             canBoost = false;
             canDrown = false;
             mechStepParticles = true;
-            allowedInPayloads = true;  // 允许作为载荷（沙盒载荷源可见）
+            allowedInPayloads = true;  // 允许作为载荷，沙盒载荷源可见
 
             localizedName = "@unit.tianyou.name";
             description = "@unit.tianyou.description";
