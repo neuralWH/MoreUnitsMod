@@ -1,6 +1,5 @@
 package tianyou;
 
-import mindustry.ai.types.AssemblerAI; // 正确的导入路径
 import mindustry.content.Planets;
 import mindustry.content.UnitTypes;
 import mindustry.entities.pattern.ShootPattern;
@@ -16,12 +15,10 @@ public class TianyouUnit {
         tianyou = new UnitType("tianyou") {{
             // 使用天帝的实体构造器，继承其组件（含 AssemblerAI 和 BuildingTetherComp）
             constructor = UnitTypes.collaris.constructor;
-            // 无参 Lambda，Prov.get() 不接收参数
-            defaultController = () -> new AssemblerAI();
 
             health = 32000f;
             armor = 12f;
-            hitSize = 44f;              // 44世界单位 = 5.5格，与天帝一致
+            hitSize = 44f;
             itemCapacity = 180;
             speed = 6f / 60f;
             rotateSpeed = 2.2f;
