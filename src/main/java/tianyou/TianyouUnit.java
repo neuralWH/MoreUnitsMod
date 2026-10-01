@@ -1,7 +1,8 @@
 package tianyou;
 
-import mindustry.ai.types.AssemblerAI; // 正确的导入路径
+import mindustry.ai.types.AssemblerAI;
 import mindustry.content.Planets;
+import mindustry.content.UnitTypes;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.*;
 import mindustry.type.*;
@@ -13,8 +14,9 @@ public class TianyouUnit {
 
     public static void load() {
         tianyou = new UnitType("tianyou") {{
-            constructor = LegsUnit::create;
-            // 无参 lambda，Prov 的 get() 不接收参数
+            // 使用天帝的实体构造器，继承其组件（含 AssemblerAI 和 BuildingTetherComp）
+            constructor = UnitTypes.collaris.constructor;
+            // 无参 Lambda，Prov.get() 不接收参数
             defaultController = () -> new AssemblerAI();
 
             health = 32000f;
