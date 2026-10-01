@@ -15,7 +15,7 @@ public class TianyouUnit {
             constructor = MechTianyouUnit::create;
             health = 32000f;
             armor = 12f;
-            hitSize = 3f;              // 6格直径
+            hitSize = 2.5f;            // 5格直径
             itemCapacity = 180;
             speed = 6f / 60f;          // 6格/秒
             rotateSpeed = 2.2f;
@@ -26,9 +26,8 @@ public class TianyouUnit {
             canBoost = false;
             canDrown = false;
             mechStepParticles = true;
-            allowedInPayloads = true;  // 允许作为载荷
+            allowedInPayloads = true;
 
-            // 指定显示在埃里克尔星球的数据库中
             shownPlanets.add(Planets.erekir);
 
             localizedName = "@unit.tianyou.name";
