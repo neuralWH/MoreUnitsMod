@@ -22,7 +22,10 @@ public class AdvancedUnitFactory extends UnitAssembler {
         this.buildTime = 60f * 46.75f;
         this.itemCapacity = 10;
         this.liquidCapacity = 120;
-        this.tier = 3;   // 去除模块等级判定：不需要模块即可生产
+
+        // 关键：设 tier 为 6，让工厂直接拥有 T6 生产能力
+        this.tier = 6;
+
         this.category = Category.units;
 
         // 建造花费
