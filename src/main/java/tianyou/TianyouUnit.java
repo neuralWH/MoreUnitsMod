@@ -13,12 +13,12 @@ public class TianyouUnit {
 
     public static void load() {
         tianyou = new UnitType("tianyou") {{
-            // 使用天帝的实体构造器，继承其组件（含 AssemblerAI 和 BuildingTetherComp）
+            // 使用天帝的实体构造器，继承其组件
             constructor = UnitTypes.collaris.constructor;
 
             health = 32000f;
             armor = 12f;
-            hitSize = 44f;
+            hitSize = 44f;              // 5.5格，与天帝一致
             itemCapacity = 180;
             speed = 6f / 60f;
             rotateSpeed = 2.2f;
@@ -37,6 +37,7 @@ public class TianyouUnit {
 
             abilities.add(new SharedShieldAbility());
 
+            // 主炮：穿透性等离子激光（1束）
             weapons.add(new Weapon("tianyou-cannon-laser") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -46,6 +47,7 @@ public class TianyouUnit {
                 bullet = TianyouBullets.plasmaLaser;
             }});
 
+            // 主炮副发射：6颗等离子追踪炮弹
             weapons.add(new Weapon("tianyou-cannon-homing") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -59,6 +61,7 @@ public class TianyouUnit {
                 }};
             }});
 
+            // 副炮：4发等离子追踪导弹
             weapons.add(new Weapon("tianyou-missile") {{
                 x = 8f; y = -10f;
                 reload = 120f;
@@ -72,6 +75,7 @@ public class TianyouUnit {
                 }};
             }});
 
+            // 点防御炮台
             weapons.add(new PointDefenseWeapon("tianyou-pointdefense") {{
                 x = -10f; y = 6f;
                 reload = 180f;
