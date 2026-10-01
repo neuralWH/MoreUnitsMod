@@ -10,7 +10,7 @@ import mindustry.gen.Unit;
 
 public class InterceptSystem {
 
-    public static final float VISION_RADIUS = 28f * 8f;
+    public static final float VISION_RADIUS = 48f;
 
     public static void init() {
     }
