@@ -1,6 +1,6 @@
 package tianyou;
 
-import mindustry.content.Planet;
+import mindustry.content.Planets;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.*;
 import mindustry.type.*;
@@ -29,7 +29,7 @@ public class TianyouUnit {
             allowedInPayloads = true;  // 允许作为载荷
 
             // 指定显示在埃里克尔星球的数据库中
-            shownPlanets.add(Planet.erekir);
+            shownPlanets.add(Planets.erekir);
 
             localizedName = "@unit.tianyou.name";
             description = "@unit.tianyou.description";
