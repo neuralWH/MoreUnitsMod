@@ -1,6 +1,8 @@
 package tianyou;
 
+import mindustry.Vars;
 import mindustry.content.Planets;
+import mindustry.content.UnitTypes;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.*;
 import mindustry.type.*;
@@ -12,8 +14,13 @@ public class TianyouUnit {
 
     public static void load() {
         tianyou = new UnitType("tianyou") {{
-            // 使用自定义实体类，同时拥有腿式贴图和 BuildingTetherComp
-            constructor = TianyouEntity::create;
+            // 使用天帝的实体构造器，继承 AssemblerAI 和 BuildingTetherComp
+            constructor = UnitTypes.collaris.constructor;
+
+            // 显式指定贴图，覆盖默认的命名查找
+            region = Vars.core.atlas.find("unit-tianyou");
+            legRegion = Vars.core.atlas.find("leg-tianyou");
+            baseRegion = Vars.core.atlas.find("leg-tianyou-base");
 
             health = 32000f;
             armor = 12f;
@@ -36,6 +43,7 @@ public class TianyouUnit {
 
             abilities.add(new SharedShieldAbility());
 
+            // 主炮：穿透性等离子激光（1束）
             weapons.add(new Weapon("tianyou-cannon-laser") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -45,6 +53,7 @@ public class TianyouUnit {
                 bullet = TianyouBullets.plasmaLaser;
             }});
 
+            // 主炮副发射：6颗等离子追踪炮弹
             weapons.add(new Weapon("tianyou-cannon-homing") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -58,6 +67,7 @@ public class TianyouUnit {
                 }};
             }});
 
+            // 副炮：4发等离子追踪导弹
             weapons.add(new Weapon("tianyou-missile") {{
                 x = 8f; y = -10f;
                 reload = 120f;
@@ -71,6 +81,7 @@ public class TianyouUnit {
                 }};
             }});
 
+            // 点防御炮台
             weapons.add(new PointDefenseWeapon("tianyou-pointdefense") {{
                 x = -10f; y = 6f;
                 reload = 180f;
