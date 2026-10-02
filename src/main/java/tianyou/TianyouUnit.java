@@ -12,8 +12,8 @@ public class TianyouUnit {
 
     public static void load() {
         tianyou = new UnitType("tianyou") {{
-            // LegsUnit 构造器：会查找 unit-tianyou.png 和 leg-tianyou*.png
-            constructor = LegsUnit::create;
+            // 使用自定义实体类，同时拥有腿式贴图和 BuildingTetherComp
+            constructor = TianyouEntity::create;
 
             health = 32000f;
             armor = 12f;
