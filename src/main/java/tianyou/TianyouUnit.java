@@ -13,23 +13,17 @@ public class TianyouUnit {
     public static UnitType tianyou;
 
     public static void load() {
+        // 1. 先创建 UnitType（使用天帝构造器，继承 AssemblerAI 和 BuildingTetherComp）
         tianyou = new UnitType("tianyou") {{
-            // 使用天帝的构造器，继承其 AssemblerAI 和 BuildingTetherComp
             constructor = UnitTypes.collaris.constructor;
 
-            // 显式指定贴图，覆盖默认命名查找
-            region = Core.atlas.find("unit-tianyou");
-            legRegion = Core.atlas.find("leg-tianyou");
-            baseRegion = Core.atlas.find("leg-tianyou-base");
-
-            // 基础属性
             health = 32000f;
             armor = 12f;
-            hitSize = 44f;              // 5.5格，与天帝一致
+            hitSize = 44f;
             itemCapacity = 180;
-            speed = 6f / 60f;           // 6格/秒
+            speed = 6f / 60f;
             rotateSpeed = 2.2f;
-            range = 48f;                // 48世界单位
+            range = 48f;
             targetAir = true;
             targetGround = true;
             flying = false;
@@ -47,7 +41,7 @@ public class TianyouUnit {
             // 主炮：穿透性等离子激光（1束）
             weapons.add(new Weapon("tianyou-cannon-laser") {{
                 x = 14f; y = -6f;
-                reload = 72f;          // 1.2秒
+                reload = 72f;
                 mirror = false;
                 shootY = 12f;
                 recoil = 8f;
@@ -71,7 +65,7 @@ public class TianyouUnit {
             // 副炮：4发等离子追踪导弹
             weapons.add(new Weapon("tianyou-missile") {{
                 x = 8f; y = -10f;
-                reload = 120f;         // 2秒
+                reload = 120f;
                 mirror = true;
                 shootY = 8f;
                 recoil = 4f;
@@ -85,12 +79,20 @@ public class TianyouUnit {
             // 点防御炮台
             weapons.add(new PointDefenseWeapon("tianyou-pointdefense") {{
                 x = -10f; y = 6f;
-                reload = 180f;         // 3秒
+                reload = 180f;
                 mirror = true;
                 shootY = 5f;
                 recoil = 2f;
                 bullet = TianyouBullets.pointDefense;
             }});
         }};
+
+        // 2. 创建完成后，再手动覆盖贴图区域（必须在 {{ }} 外部）
+        tianyou.region = Core.atlas.find("unit-tianyou");
+        tianyou.legRegion = Core.atlas.find("leg-tianyou");
+        tianyou.baseRegion = Core.atlas.find("leg-tianyou-base");
+
+        // 如果腿部还有额外的部件（如 legBaseRegion），也在这里设置：
+        // tianyou.legBaseRegion = Core.atlas.find("leg-tianyou-base");
     }
 }
