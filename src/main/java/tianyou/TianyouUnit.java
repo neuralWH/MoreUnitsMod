@@ -1,7 +1,6 @@
 package tianyou;
 
 import mindustry.content.Planets;
-import mindustry.content.UnitTypes;
 import mindustry.entities.pattern.ShootPattern;
 import mindustry.gen.*;
 import mindustry.type.*;
@@ -13,16 +12,16 @@ public class TianyouUnit {
 
     public static void load() {
         tianyou = new UnitType("tianyou") {{
-            // 直接使用天帝的实体构造器，继承其 AssemblerAI 和 BuildingTetherComp
-            constructor = UnitTypes.collaris.constructor;
+            // LegsUnit 构造器：会查找 unit-tianyou.png 和 leg-tianyou*.png
+            constructor = LegsUnit::create;
 
             health = 32000f;
             armor = 12f;
-            hitSize = 44f;              // 与天帝一致，约 5.5 格直径
+            hitSize = 44f;
             itemCapacity = 180;
-            speed = 6f / 60f;           // 6 格/秒
+            speed = 6f / 60f;
             rotateSpeed = 2.2f;
-            range = 48f;                // 48 世界单位
+            range = 48f;
             targetAir = true;
             targetGround = true;
             flying = false;
@@ -37,17 +36,15 @@ public class TianyouUnit {
 
             abilities.add(new SharedShieldAbility());
 
-            // 主炮：穿透性等离子激光（1束）
             weapons.add(new Weapon("tianyou-cannon-laser") {{
                 x = 14f; y = -6f;
-                reload = 72f;          // 1.2秒
+                reload = 72f;
                 mirror = false;
                 shootY = 12f;
                 recoil = 8f;
                 bullet = TianyouBullets.plasmaLaser;
             }});
 
-            // 主炮副发射：6颗等离子追踪炮弹
             weapons.add(new Weapon("tianyou-cannon-homing") {{
                 x = 14f; y = -6f;
                 reload = 72f;
@@ -61,10 +58,9 @@ public class TianyouUnit {
                 }};
             }});
 
-            // 副炮：4发等离子追踪导弹
             weapons.add(new Weapon("tianyou-missile") {{
                 x = 8f; y = -10f;
-                reload = 120f;         // 2秒
+                reload = 120f;
                 mirror = true;
                 shootY = 8f;
                 recoil = 4f;
@@ -75,10 +71,9 @@ public class TianyouUnit {
                 }};
             }});
 
-            // 点防御炮台
             weapons.add(new PointDefenseWeapon("tianyou-pointdefense") {{
                 x = -10f; y = 6f;
-                reload = 180f;         // 3秒
+                reload = 180f;
                 mirror = true;
                 shootY = 5f;
                 recoil = 2f;
