@@ -132,7 +132,7 @@ public class TianyouUnit {
             is.close();
             byte[] data = baos.toByteArray();
 
-            // 从字节数组创建 Pixmap，再创建 Texture
+            // 从字节数组创建 Pixmap
             Pixmap pixmap = new Pixmap(data);
             Texture tex = new Texture(pixmap);
             pixmap.dispose();
