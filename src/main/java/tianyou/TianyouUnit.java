@@ -2,6 +2,10 @@ package tianyou;
 
 import arc.Core;
 import arc.Events;
+import arc.graphics.Pixmap;
+import arc.graphics.Texture;
+import arc.graphics.g2d.AtlasRegion;
+import arc.util.Log;
 import mindustry.content.Planets;
 import mindustry.content.UnitTypes;
 import mindustry.entities.pattern.ShootPattern;
@@ -9,6 +13,9 @@ import mindustry.game.EventType.ContentInitEvent;
 import mindustry.gen.*;
 import mindustry.type.*;
 import mindustry.type.weapons.PointDefenseWeapon;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 public class TianyouUnit {
 
@@ -89,11 +96,53 @@ public class TianyouUnit {
             }});
         }};
 
-        // 关键：在所有内容加载完成后，再覆盖贴图区域
+        // 内容加载完成后，手动注册贴图到 atlas
         Events.on(ContentInitEvent.class, e -> {
+            registerSprite("unit-tianyou", "sprites/unit-tianyou.png");
+            registerSprite("leg-tianyou", "sprites/leg-tianyou.png");
+            registerSprite("leg-tianyou-base", "sprites/leg-tianyou-base.png");
+            registerSprite("weapon-tianyou-cannon-laser", "sprites/weapon-tianyou-cannon-laser.png");
+            registerSprite("weapon-tianyou-cannon-homing", "sprites/weapon-tianyou-cannon-homing.png");
+            registerSprite("weapon-tianyou-missile", "sprites/weapon-tianyou-missile.png");
+            registerSprite("weapon-tianyou-pointdefense", "sprites/weapon-tianyou-pointdefense.png");
+
             tianyou.region = Core.atlas.find("unit-tianyou");
             tianyou.legRegion = Core.atlas.find("leg-tianyou");
             tianyou.baseRegion = Core.atlas.find("leg-tianyou-base");
         });
+    }
+
+    private static void registerSprite(String regionName, String path) {
+        if (Core.atlas.has(regionName)) return;
+        try {
+            // 从 classpath 读取 jar 内的贴图文件
+            InputStream is = TianyouUnit.class.getClassLoader()
+                .getResourceAsStream("assets/" + path);
+            if (is == null) {
+                Log.err("Sprite not found in classpath: assets/" + path);
+                return;
+            }
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = is.read(buf)) > 0) {
+                baos.write(buf, 0, n);
+            }
+            is.close();
+            byte[] data = baos.toByteArray();
+
+            // 从字节数组创建 Pixmap，再创建 Texture
+            Pixmap pixmap = new Pixmap(data);
+            Texture tex = new Texture(pixmap);
+            pixmap.dispose();
+
+            // 创建 AtlasRegion 并注册到 atlas
+            AtlasRegion region = new AtlasRegion(tex, 0, 0, tex.getWidth(), tex.getHeight());
+            region.name = regionName;
+            Core.atlas.addRegion(region);
+        } catch (Exception ex) {
+            Log.err("Failed to load sprite: " + path, ex);
+        }
     }
 }
