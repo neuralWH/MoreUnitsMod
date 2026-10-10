@@ -4,6 +4,7 @@ import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
 import arc.util.Time;
+import mindustry.content.UnitTypes;
 import mindustry.gen.Bullet;
 import mindustry.gen.Groups;
 import mindustry.gen.Unit;
@@ -24,7 +25,7 @@ public class InterceptSystem {
         }
 
         for (Unit u : Groups.unit) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             if (ShieldSystem.unitToCluster.containsKey(u)) continue;
             handleSingleIntercept(u, bullets);
         }
@@ -90,7 +91,7 @@ public class InterceptSystem {
         Shield best = null;
         float bestDist = Float.MAX_VALUE;
         for (Unit u : c.units) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = ShieldSystem.getShields(u);
             if (shields == null) continue;
             for (Shield s : shields) {
@@ -108,7 +109,7 @@ public class InterceptSystem {
         Shield best = null;
         float bestDist = Float.MAX_VALUE;
         for (Unit u : c.units) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             CirclePath pathB = ShieldSystem.getPathB(u);
             if (pathB == null) continue;
             Vec2 intersection = linePathIntersect(c.centroid, new Vec2(b.x, b.y), pathB);
@@ -131,7 +132,7 @@ public class InterceptSystem {
         Shield best = null;
         float bestDist = Float.MAX_VALUE;
         for (Unit u : c.units) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             CirclePath pathA = ShieldSystem.getPathA(u);
             if (pathA == null) continue;
             Vec2 intersection = linePathIntersect(c.centroid, new Vec2(b.x, b.y), pathA);
@@ -243,7 +244,7 @@ public class InterceptSystem {
 
     private static void updateInterceptingShields() {
         for (Unit u : Groups.unit) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = ShieldSystem.getShields(u);
             if (shields == null) continue;
             for (Shield s : shields) {
@@ -315,7 +316,7 @@ public class InterceptSystem {
 
     private static boolean hasAssignedShield(Bullet b) {
         for (Unit u : Groups.unit) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = ShieldSystem.getShields(u);
             if (shields == null) continue;
             for (Shield s : shields) {
@@ -327,7 +328,7 @@ public class InterceptSystem {
 
     private static boolean inOtherShieldRange(Bullet b, ShieldCluster c) {
         for (Unit u : Groups.unit) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             ShieldCluster other = ShieldSystem.unitToCluster.get(u);
             if (other == null || other == c) continue;
             Seq<Shield> shields = ShieldSystem.getShields(u);
