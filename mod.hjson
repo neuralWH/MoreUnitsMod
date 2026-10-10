@@ -1,8 +1,8 @@
 # 游戏内显示的模组名称
-displayName: "More Units Mod"
+displayName: "Collaris Shield Enhancement"
 
 # 模组的内部标识名
-name: "more-units-mod"
+name: "collaris-shield"
 
 # 作者
 author: "YourName"
@@ -11,7 +11,7 @@ author: "YourName"
 main: "tianyou.TianyouMod"
 
 # 模组描述
-description: "Adds the Tianyou unit with shared shields for Erekir."
+description: "Adds a shared shield system to the Collaris unit on Erekir."
 
 # 模组版本
 version: 1.0.0
