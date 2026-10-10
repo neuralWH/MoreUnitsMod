@@ -5,6 +5,7 @@ import arc.math.geom.Vec2;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Time;
+import mindustry.content.UnitTypes;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Groups;
 import mindustry.gen.Unit;
@@ -30,7 +31,7 @@ public class ShieldSystem {
         CirclePath a = new CirclePath(ShieldPath.Type.A, 6f * 8f, false);
         CirclePath b = new CirclePath(ShieldPath.Type.B, 9f * 8f, true);
         a.center.set(u.x, u.y);
-        b.center.set(u.x, u.y);
+        b.center.set(u.y, u.y);
         pathAMap.put(u, a);
         pathBMap.put(u, b);
     }
@@ -43,11 +44,34 @@ public class ShieldSystem {
         return pathBMap.get(u);
     }
 
+    // 为天帝自动初始化护盾
+    private static void ensureShields(Unit u) {
+        if (shieldMap.containsKey(u)) return;
+        initUnitPaths(u);
+        Seq<Shield> shields = new Seq<>();
+        for (int i = 0; i < 5; i++) {
+            shields.add(new Shield(i, u));
+        }
+        CirclePath a = pathAMap.get(u);
+        CirclePath b = pathBMap.get(u);
+        for (int i = 0; i < 3; i++) {
+            if (a != null) shields.get(i).currentPath = a;
+        }
+        for (int i = 3; i < 5; i++) {
+            if (b != null) shields.get(i).currentPath = b;
+        }
+        shieldMap.put(u, shields);
+    }
+
     public static void update(float delta) {
         updateTimer += delta;
 
         for (Unit u : Groups.unit) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
+
+            // 首次见到天帝，自动创建护盾
+            ensureShields(u);
+
             CirclePath a = pathAMap.get(u);
             CirclePath b = pathBMap.get(u);
             if (a != null) a.center.set(u.x, u.y);
@@ -66,7 +90,7 @@ public class ShieldSystem {
         InterceptSystem.update(delta);
 
         for (Unit u : Groups.unit) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = shieldMap.get(u);
             if (shields == null) continue;
             for (Shield s : shields) s.update(delta);
@@ -84,7 +108,7 @@ public class ShieldSystem {
         Seq<Shield> allShields = new Seq<>();
 
         for (Unit u : c.units) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = shieldMap.get(u);
             if (shields == null) continue;
             for (Shield s : shields) {
@@ -94,9 +118,8 @@ public class ShieldSystem {
             }
         }
 
-        // 规则1：路径A补至3，多出转移至路径B
         for (Unit u : c.units) {
-            if (u.type != TianyouUnit.tianyou) continue;
+            if (u.type != UnitTypes.collaris) continue;
             CirclePath pathA = getPathA(u);
             CirclePath pathB = getPathB(u);
             if (pathA == null || pathB == null) continue;
@@ -136,7 +159,6 @@ public class ShieldSystem {
             }
         }
 
-        // 规则2：路径B转移至C/D
         int capC = c.pathC.capacity();
         int capD = c.pathD.capacity();
 
@@ -161,7 +183,6 @@ public class ShieldSystem {
             }
         }
 
-        // 超过容量时返还至路径A
         for (Shield s : allShields) {
             if (s.intercepting) continue;
             if (s.currentPath == null) continue;
@@ -174,7 +195,6 @@ public class ShieldSystem {
             }
         }
 
-        // 规则3：均匀分布
         distributeOnPath(allShields, ShieldPath.Type.A);
         distributeOnPath(allShields, ShieldPath.Type.B);
         distributeOnPath(allShields, ShieldPath.Type.C);
@@ -205,7 +225,7 @@ public class ShieldSystem {
     private static void checkClusterStructure() {
         Seq<Unit> allTianyou = new Seq<>();
         for (Unit u : Groups.unit) {
-            if (u.type == TianyouUnit.tianyou && u.isValid() && !u.dead) {
+            if (u.type == UnitTypes.collaris && u.isValid() && !u.dead) {
                 allTianyou.add(u);
             }
         }
