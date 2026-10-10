@@ -31,7 +31,7 @@ public class ShieldSystem {
         CirclePath a = new CirclePath(ShieldPath.Type.A, 6f * 8f, false);
         CirclePath b = new CirclePath(ShieldPath.Type.B, 9f * 8f, true);
         a.center.set(u.x, u.y);
-        b.center.set(u.y, u.y);
+        b.center.set(u.x, u.y);
         pathAMap.put(u, a);
         pathBMap.put(u, b);
     }
@@ -118,6 +118,7 @@ public class ShieldSystem {
             }
         }
 
+        // 规则1：路径A补至3，多出转移至路径B
         for (Unit u : c.units) {
             if (u.type != UnitTypes.collaris) continue;
             CirclePath pathA = getPathA(u);
@@ -159,6 +160,7 @@ public class ShieldSystem {
             }
         }
 
+        // 规则2：路径B转移至C/D
         int capC = c.pathC.capacity();
         int capD = c.pathD.capacity();
 
@@ -183,6 +185,7 @@ public class ShieldSystem {
             }
         }
 
+        // 超过容量时返还至路径A
         for (Shield s : allShields) {
             if (s.intercepting) continue;
             if (s.currentPath == null) continue;
@@ -195,6 +198,7 @@ public class ShieldSystem {
             }
         }
 
+        // 规则3：均匀分布
         distributeOnPath(allShields, ShieldPath.Type.A);
         distributeOnPath(allShields, ShieldPath.Type.B);
         distributeOnPath(allShields, ShieldPath.Type.C);
@@ -230,6 +234,7 @@ public class ShieldSystem {
             }
         }
 
+        // 逐个检查离开
         for (Unit u : allTianyou) {
             ShieldCluster current = unitToCluster.get(u);
             if (current == null) continue;
@@ -242,6 +247,7 @@ public class ShieldSystem {
             }
         }
 
+        // 逐个尝试加入
         for (Unit u : allTianyou) {
             if (unitToCluster.containsKey(u)) continue;
 
