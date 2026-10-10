@@ -1,6 +1,7 @@
 package tianyou;
 
 import arc.graphics.g2d.Draw;
+import mindustry.content.UnitTypes;
 import mindustry.entities.abilities.Ability;
 import mindustry.gen.Unit;
 import mindustry.graphics.Layer;
@@ -19,7 +20,7 @@ public class SharedShieldAbility extends Ability {
     @Override
     public void draw(Unit unit) {
         if (unit == null) return;
-        if (unit.type != TianyouUnit.tianyou) return;
+        if (unit.type != UnitTypes.collaris) return;
         if (!unit.isValid()) return;
 
         try {
