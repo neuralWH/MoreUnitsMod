@@ -10,6 +10,10 @@ public class ShieldCluster {
     public final Vec2 centroid = new Vec2();
     public ShieldPath pathC, pathD;
 
+    // 路径 C/D 的旋转相位（0~1），由 ShieldSystem 每帧按线速度推进
+    public float phaseC = 0f;
+    public float phaseD = 0f;
+
     public boolean canAdd(Unit u) {
         if (u == null) return false;
         Seq<Unit> test = new Seq<>(units);
