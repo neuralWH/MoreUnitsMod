@@ -4,9 +4,6 @@ import arc.graphics.g2d.Lines;
 import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import mindustry.gen.Unit;
-import mindustry.graphics.Draw;
-import mindustry.graphics.Layer;
-import mindustry.graphics.Pal;
 
 public class Shield {
 
@@ -33,6 +30,7 @@ public class Shield {
     }
 
     public void update(float delta) {
+        // 17秒无伤害回复
         if (hp < 6000f) {
             timeSinceDamage += delta;
             if (timeSinceDamage >= 17f) {
@@ -44,6 +42,7 @@ public class Shield {
             timeSinceDamage = 0f;
         }
 
+        // 不在拦截时，平滑调整 pathParam，并每帧从路径计算 position
         if (!intercepting && currentPath != null) {
             float diff = targetPathParam - pathParam;
             if (diff > 0.5f) diff -= 1f;
@@ -86,20 +85,20 @@ public class Shield {
     public void draw() {
         if (state == ShieldState.DESTROYED) return;
         if (currentPath == null) return;
+        if (tangent == null) return;
 
         float angle = Mathf.atan2(tangent.y, tangent.x);
-        float curve = 0.2f;
 
         // 长6格、宽2格、内凹0.2格
-        float halfLen = 3f * 8f;   // 24 世界单位
-        float depth = 0.2f * 8f;   // 1.6 世界单位
+        float halfLen = 3f * 8f;    // 24 世界单位
+        float depth = 0.2f * 8f;    // 1.6 世界单位
 
         Lines.stroke(2f);
         Lines.beginLine();
         for (int i = 0; i <= 8; i++) {
             float t = i / 8f;
-            float lx = (t - 0.5f) * 2f * halfLen;   // -24 到 +24
-            float ly = -depth * (1f - (2f*t-1f)*(2f*t-1f));  // 内凹
+            float lx = (t - 0.5f) * 2f * halfLen;
+            float ly = -depth * (1f - (2f * t - 1f) * (2f * t - 1f));
             float wx = position.x + lx * Mathf.cos(angle) - ly * Mathf.sin(angle);
             float wy = position.y + lx * Mathf.sin(angle) + ly * Mathf.cos(angle);
             Lines.linePoint(wx, wy);
