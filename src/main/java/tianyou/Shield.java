@@ -1,9 +1,12 @@
 package tianyou;
 
-import arc.graphics.g2d.Lines;
+import arc.Core;
+import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import mindustry.gen.Unit;
+import mindustry.graphics.Layer;
 
 public class Shield {
 
@@ -19,7 +22,7 @@ public class Shield {
 
     private final Vec2 transitionFrom = new Vec2();
     private final Vec2 transitionTo = new Vec2();
-    private float transitionProgress = 1f;
+    public float transitionProgress = 1f;
 
     public boolean intercepting = false;
     public Object interceptTarget = null;
@@ -33,7 +36,6 @@ public class Shield {
     }
 
     public void update(float delta) {
-        // 17秒无伤害回复
         if (hp < 6000f) {
             timeSinceDamage += delta;
             if (timeSinceDamage >= 17f) {
@@ -45,7 +47,6 @@ public class Shield {
             timeSinceDamage = 0f;
         }
 
-        // 平滑过渡
         if (transitionProgress < 1f) {
             transitionProgress = Math.min(1f, transitionProgress + delta / 0.5f);
             position.set(transitionFrom).lerp(transitionTo, transitionProgress);
@@ -83,20 +84,16 @@ public class Shield {
         if (currentPath == null) return;
         if (tangent == null) return;
 
-        float angle = Mathf.atan2(tangent.y, tangent.x);
-        float curve = 0.2f;
+        TextureRegion region = Core.atlas.find("tecta-shield");
+        if (!region.found()) return;
 
-        Lines.stroke(2f);
-        Lines.beginLine();
-        for (int i = 0; i <= 8; i++) {
-            float t = i / 8f;
-            float lx = (t - 0.5f) * 6f * 8f;
-            float ly = -curve * (1f - (2f * t - 1f) * (2f * t - 1f)) * 8f;
-            float wx = position.x + lx * Mathf.cos(angle) - ly * Mathf.sin(angle);
-            float wy = position.y + lx * Mathf.sin(angle) + ly * Mathf.cos(angle);
-            Lines.linePoint(wx, wy);
-        }
-        Lines.endLine();
+        float angle = Mathf.atan2(tangent.y, tangent.x) * Mathf.radDeg;
+        float w = region.width * Draw.scl;
+        float h = region.height * Draw.scl;
+
+        Draw.z(Layer.shields);
+        Draw.rect(region, position.x, position.y, w, h, angle);
+        Draw.reset();
     }
 
     public boolean collidesWithBullet(float bx, float by) {
