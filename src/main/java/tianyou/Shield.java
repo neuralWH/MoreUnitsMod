@@ -30,7 +30,6 @@ public class Shield {
     }
 
     public void update(float delta) {
-        // 17秒无伤害回复
         if (hp < 6000f) {
             timeSinceDamage += delta;
             if (timeSinceDamage >= 17f) {
@@ -88,10 +87,7 @@ public class Shield {
         if (!owner.isValid()) return;
 
         // 径向角度：从单位中心指向护盾位置
-        float radial = Mathf.atan2(position.y - owner.y, position.x - owner.x);
-
-        // 长边沿切线方向 = 径向 + 90°
-        float angle = radial + Mathf.PI / 2f;
+        float angle = Mathf.atan2(position.y - owner.y, position.x - owner.x);
 
         // 护盾尺寸：长6格(半长3格)、内凹0.2格
         float halfLen = 3f * 8f;    // 24 世界单位
@@ -102,7 +98,7 @@ public class Shield {
         for (int i = 0; i <= 8; i++) {
             float t = i / 8f;
             float lx = (t - 0.5f) * 2f * halfLen;
-            // 中间朝单位方向凸出（内凹面朝内）
+            // 内凹面朝向单位中心
             float ly = depth * (1f - (2f * t - 1f) * (2f * t - 1f));
             float wx = position.x + lx * Mathf.cos(angle) - ly * Mathf.sin(angle);
             float wy = position.y + lx * Mathf.sin(angle) + ly * Mathf.cos(angle);
@@ -115,8 +111,7 @@ public class Shield {
         if (state != ShieldState.ACTIVE) return false;
         if (owner == null) return false;
 
-        float radial = Mathf.atan2(position.y - owner.y, position.x - owner.x);
-        float angle = radial + Mathf.PI / 2f;
+        float angle = Mathf.atan2(position.y - owner.y, position.x - owner.x);
 
         float dx = bx - position.x;
         float dy = by - position.y;
