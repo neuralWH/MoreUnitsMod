@@ -95,8 +95,10 @@ public class Shield {
         if (!region.found()) return;
 
         float angle = Mathf.atan2(tangent.y, tangent.x) * Mathf.radDeg;
-        float w = region.width * Draw.scl;
-        float h = region.height * Draw.scl;
+
+        // 护盾尺寸：长6格、宽2格（1格=8世界单位）
+        float w = 6f * 8f;
+        float h = 2f * 8f;
 
         Draw.z(Layer.shields);
         Draw.rect(region, position.x, position.y, w, h, angle);
