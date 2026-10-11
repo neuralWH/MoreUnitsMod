@@ -116,7 +116,6 @@ public class ShieldSystem {
         }
     }
 
-    // 用 Time.time 计算相位。Time.time 单位是 tick，除以 60 转成秒
     private static void updateTargetPathParams() {
         float seconds = Time.time / 60f;
 
@@ -131,10 +130,12 @@ public class ShieldSystem {
             float phaseA = 0f;
             float phaseB = 0f;
             if (a != null && a.length() > 0.01f) {
-                phaseA = (seconds * LINEAR_SPEED / a.length()) % 1f;
+                float raw = -seconds * LINEAR_SPEED / a.length();
+                phaseA = ((raw % 1f) + 1f) % 1f;
             }
             if (b != null && b.length() > 0.01f) {
-                phaseB = (seconds * LINEAR_SPEED / b.length()) % 1f;
+                float raw = -seconds * LINEAR_SPEED / b.length();
+                phaseB = ((raw % 1f) + 1f) % 1f;
             }
 
             ShieldCluster cluster = unitToCluster.get(u);
@@ -143,11 +144,13 @@ public class ShieldSystem {
 
             if (cluster != null) {
                 if (cluster.pathC != null && cluster.pathC.length() > 0.01f) {
-                    phaseC = (seconds * LINEAR_SPEED / cluster.pathC.length()) % 1f;
+                    float raw = -seconds * LINEAR_SPEED / cluster.pathC.length();
+                    phaseC = ((raw % 1f) + 1f) % 1f;
                     cluster.phaseC = phaseC;
                 }
                 if (cluster.pathD != null && cluster.pathD.length() > 0.01f) {
-                    phaseD = (seconds * LINEAR_SPEED / cluster.pathD.length()) % 1f;
+                    float raw = -seconds * LINEAR_SPEED / cluster.pathD.length();
+                    phaseD = ((raw % 1f) + 1f) % 1f;
                     cluster.phaseD = phaseD;
                 }
             }
