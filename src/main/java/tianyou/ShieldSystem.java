@@ -54,27 +54,20 @@ public class ShieldSystem {
         CirclePath a = pathAMap.get(u);
         CirclePath b = pathBMap.get(u);
 
-        // 立即设置护盾位置，避免从原点飞入
         for (int i = 0; i < 3; i++) {
             if (a != null) {
                 Shield s = shields.get(i);
                 s.currentPath = a;
-                float t = i / 3f;
-                s.pathParam = t;
-                s.position.set(a.pointAt(t));
-                s.tangent.set(a.tangentAt(t));
-                s.transitionProgress = 1f;
+                s.pathParam = i / 3f;
+                s.targetPathParam = s.pathParam;
             }
         }
         for (int i = 3; i < 5; i++) {
             if (b != null) {
                 Shield s = shields.get(i);
                 s.currentPath = b;
-                float t = (i - 3) / 2f;
-                s.pathParam = t;
-                s.position.set(b.pointAt(t));
-                s.tangent.set(b.tangentAt(t));
-                s.transitionProgress = 1f;
+                s.pathParam = (i - 3) / 2f;
+                s.targetPathParam = s.pathParam;
             }
         }
         shieldMap.put(u, shields);
@@ -228,18 +221,7 @@ public class ShieldSystem {
         for (int i = 0; i < n; i++) {
             Shield s = onPath.get(i);
             float t = (i / (float) n + Time.time * 0.001f) % 1f;
-            Vec2 target = s.currentPath.pointAt(t);
-            Vec2 tan = s.currentPath.tangentAt(t);
-            s.pathParam = t;
-            s.tangent.set(tan);
-
-            // 已在过渡中则不打断；否则距离远才启动新过渡
-            if (s.transitionProgress < 1f) continue;
-            if (s.position.dst(target) > 4f) {
-                s.startTransition(target);
-            } else {
-                s.position.set(target);
-            }
+            s.targetPathParam = t;
         }
     }
 
