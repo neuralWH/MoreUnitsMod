@@ -85,13 +85,15 @@ public class Shield {
         if (state == ShieldState.DESTROYED) return;
         if (currentPath == null) return;
         if (owner == null) return;
+        if (!owner.isValid()) return;
 
         // 径向角度：从单位中心指向护盾位置
         float radial = Mathf.atan2(position.y - owner.y, position.x - owner.x);
-        // 切线方向 = 径向旋转 90 度，保证长边沿切线方向
+
+        // 长边沿切线方向 = 径向 + 90°
         float angle = radial + Mathf.PI / 2f;
 
-        // 长6格、宽2格、内凹0.2格
+        // 护盾尺寸：长6格(半长3格)、内凹0.2格
         float halfLen = 3f * 8f;    // 24 世界单位
         float depth = 0.2f * 8f;    // 1.6 世界单位
 
@@ -100,8 +102,8 @@ public class Shield {
         for (int i = 0; i <= 8; i++) {
             float t = i / 8f;
             float lx = (t - 0.5f) * 2f * halfLen;
-            // 内凹面朝向单位中心（局部 y 轴负方向）
-            float ly = -depth * (1f - (2f * t - 1f) * (2f * t - 1f));
+            // 中间朝单位方向凸出（内凹面朝内）
+            float ly = depth * (1f - (2f * t - 1f) * (2f * t - 1f));
             float wx = position.x + lx * Mathf.cos(angle) - ly * Mathf.sin(angle);
             float wy = position.y + lx * Mathf.sin(angle) + ly * Mathf.cos(angle);
             Lines.linePoint(wx, wy);
@@ -111,8 +113,11 @@ public class Shield {
 
     public boolean collidesWithBullet(float bx, float by) {
         if (state != ShieldState.ACTIVE) return false;
-        if (tangent == null) return false;
-        float angle = Mathf.atan2(tangent.y, tangent.x);
+        if (owner == null) return false;
+
+        float radial = Mathf.atan2(position.y - owner.y, position.x - owner.x);
+        float angle = radial + Mathf.PI / 2f;
+
         float dx = bx - position.x;
         float dy = by - position.y;
         float localX = dx * Mathf.cos(-angle) - dy * Mathf.sin(-angle);
