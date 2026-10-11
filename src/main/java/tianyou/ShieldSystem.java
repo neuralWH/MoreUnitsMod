@@ -96,11 +96,62 @@ public class ShieldSystem {
 
         InterceptSystem.update(delta);
 
+        // 每帧更新护盾的目标路径参数，实现连续旋转
+        updateTargetPathParams();
+
         for (Unit u : Groups.unit) {
             if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = shieldMap.get(u);
             if (shields == null) continue;
             for (Shield s : shields) s.update(delta);
+        }
+    }
+
+    // 每帧根据 Time.time 更新护盾的 targetPathParam，使护盾沿路径旋转
+    private static void updateTargetPathParams() {
+        float rot = Time.time * 0.002f;
+
+        for (Unit u : Groups.unit) {
+            if (u.type != UnitTypes.collaris) continue;
+            Seq<Shield> shields = shieldMap.get(u);
+            if (shields == null) continue;
+
+            // 统计每条路径上的护盾数量
+            int countA = 0, countB = 0, countC = 0, countD = 0;
+            for (Shield s : shields) {
+                if (s.currentPath == null || s.intercepting) continue;
+                switch (s.currentPath.type) {
+                    case A: countA++; break;
+                    case B: countB++; break;
+                    case C: countC++; break;
+                    case D: countD++; break;
+                }
+            }
+
+            int idxA = 0, idxB = 0, idxC = 0, idxD = 0;
+            for (Shield s : shields) {
+                if (s.currentPath == null || s.intercepting) continue;
+                float t = 0f;
+                switch (s.currentPath.type) {
+                    case A:
+                        t = (rot + idxA / (float) Math.max(1, countA)) % 1f;
+                        idxA++;
+                        break;
+                    case B:
+                        t = (rot + idxB / (float) Math.max(1, countB)) % 1f;
+                        idxB++;
+                        break;
+                    case C:
+                        t = (rot + idxC / (float) Math.max(1, countC)) % 1f;
+                        idxC++;
+                        break;
+                    case D:
+                        t = (rot + idxD / (float) Math.max(1, countD)) % 1f;
+                        idxD++;
+                        break;
+                }
+                s.targetPathParam = t;
+            }
         }
     }
 
@@ -200,28 +251,6 @@ public class ShieldSystem {
                 s.currentPath = getPathA(s.owner);
                 onD--;
             }
-        }
-
-        distributeOnPath(allShields, ShieldPath.Type.A);
-        distributeOnPath(allShields, ShieldPath.Type.B);
-        distributeOnPath(allShields, ShieldPath.Type.C);
-        distributeOnPath(allShields, ShieldPath.Type.D);
-    }
-
-    private static void distributeOnPath(Seq<Shield> allShields, ShieldPath.Type type) {
-        Seq<Shield> onPath = new Seq<>();
-        for (Shield s : allShields) {
-            if (s.currentPath != null && s.currentPath.type == type && !s.intercepting) {
-                onPath.add(s);
-            }
-        }
-        if (onPath.isEmpty()) return;
-
-        int n = onPath.size;
-        for (int i = 0; i < n; i++) {
-            Shield s = onPath.get(i);
-            float t = (i / (float) n + Time.time * 0.001f) % 1f;
-            s.targetPathParam = t;
         }
     }
 
