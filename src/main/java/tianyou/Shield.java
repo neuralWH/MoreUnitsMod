@@ -17,12 +17,9 @@ public class Shield {
 
     public ShieldPath currentPath;
     public float pathParam;
+    public float targetPathParam;
     public final Vec2 position = new Vec2();
     public final Vec2 tangent = new Vec2();
-
-    private final Vec2 transitionFrom = new Vec2();
-    private final Vec2 transitionTo = new Vec2();
-    public float transitionProgress = 1f;
 
     public boolean intercepting = false;
     public Object interceptTarget = null;
@@ -36,6 +33,7 @@ public class Shield {
     }
 
     public void update(float delta) {
+        // 17秒无伤害回复
         if (hp < 6000f) {
             timeSinceDamage += delta;
             if (timeSinceDamage >= 17f) {
@@ -47,17 +45,26 @@ public class Shield {
             timeSinceDamage = 0f;
         }
 
-        if (transitionProgress < 1f) {
-            transitionProgress = Math.min(1f, transitionProgress + delta / 0.5f);
-            position.set(transitionFrom).lerp(transitionTo, transitionProgress);
+        // 不在拦截时，平滑调整 pathParam，并每帧从路径计算 position
+        if (!intercepting && currentPath != null) {
+            float diff = targetPathParam - pathParam;
+            if (diff > 0.5f) diff -= 1f;
+            if (diff < -0.5f) diff += 1f;
+
+            float speed = delta / 0.5f;
+            if (Math.abs(diff) > speed) {
+                pathParam = (pathParam + Mathf.sign(diff) * speed + 1f) % 1f;
+            } else {
+                pathParam = targetPathParam;
+            }
+
+            position.set(currentPath.pointAt(pathParam));
+            tangent.set(currentPath.tangentAt(pathParam));
         }
     }
 
     public void startTransition(Vec2 target) {
-        if (target == null) return;
-        transitionFrom.set(position);
-        transitionTo.set(target);
-        transitionProgress = 0f;
+        // 保留空实现，兼容旧调用
     }
 
     public void damage(float amount) {
