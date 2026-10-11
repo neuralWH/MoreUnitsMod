@@ -1,6 +1,7 @@
 package tianyou;
 
 import arc.Events;
+import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -17,8 +18,17 @@ public class ShieldSystem {
     public static final ObjectMap<Unit, Seq<Shield>> shieldMap = new ObjectMap<>();
     public static final ObjectMap<Unit, CirclePath> pathAMap = new ObjectMap<>();
     public static final ObjectMap<Unit, CirclePath> pathBMap = new ObjectMap<>();
+
+    // 单位级相位（路径 A/B）
+    public static final ObjectMap<Unit, Float> phaseA = new ObjectMap<>();
+    public static final ObjectMap<Unit, Float> phaseB = new ObjectMap<>();
+
     public static float updateTimer = 0f;
     public static final float UPDATE_INTERVAL = 0.5f;
+
+    // 护盾沿路径的线速度（世界单位/秒）
+    // 路径A半径48世界单位，周长 2π×48 ≈ 301.6，10秒一圈 => 线速度 ≈ 30
+    public static final float LINEAR_SPEED = 30f;
 
     public static void init() {
         Events.run(Trigger.update, () -> {
@@ -71,6 +81,10 @@ public class ShieldSystem {
             }
         }
         shieldMap.put(u, shields);
+
+        // 初始化相位
+        phaseA.put(u, 0f);
+        phaseB.put(u, 0f);
     }
 
     public static void update(float delta) {
@@ -96,8 +110,8 @@ public class ShieldSystem {
 
         InterceptSystem.update(delta);
 
-        // 每帧更新护盾的目标路径参数，实现连续旋转
-        updateTargetPathParams();
+        // 按线速度推进相位
+        updateTargetPathParams(delta);
 
         for (Unit u : Groups.unit) {
             if (u.type != UnitTypes.collaris) continue;
@@ -107,50 +121,94 @@ public class ShieldSystem {
         }
     }
 
-    // 每帧根据 Time.time 更新护盾的 targetPathParam，使护盾沿路径旋转
-    private static void updateTargetPathParams() {
-        float rot = Time.time * 0.002f;
+    // 按线速度推进所有路径的相位，并分配每个护盾的 targetPathParam
+    private static void updateTargetPathParams(float delta) {
+        // 1. 推进单位级相位 A/B
+        for (Unit u : Groups.unit) {
+            if (u.type != UnitTypes.collaris) continue;
 
+            CirclePath a = pathAMap.get(u);
+            if (a != null) {
+                float len = a.length();
+                if (len > 0.01f) {
+                    float phase = phaseA.get(u, 0f);
+                    phase = (phase + LINEAR_SPEED * delta / len) % 1f;
+                    phaseA.put(u, phase);
+                }
+            }
+
+            CirclePath b = pathBMap.get(u);
+            if (b != null) {
+                float len = b.length();
+                if (len > 0.01f) {
+                    float phase = phaseB.get(u, 0f);
+                    phase = (phase + LINEAR_SPEED * delta / len) % 1f;
+                    phaseB.put(u, phase);
+                }
+            }
+        }
+
+        // 2. 推进簇级相位 C/D
+        for (ShieldCluster c : clusters) {
+            if (c.pathC != null) {
+                float len = c.pathC.length();
+                if (len > 0.01f) {
+                    c.phaseC = (c.phaseC + LINEAR_SPEED * delta / len) % 1f;
+                }
+            }
+            if (c.pathD != null) {
+                float len = c.pathD.length();
+                if (len > 0.01f) {
+                    c.phaseD = (c.phaseD + LINEAR_SPEED * delta / len) % 1f;
+                }
+            }
+        }
+
+        // 3. 分配每个护盾的 targetPathParam
         for (Unit u : Groups.unit) {
             if (u.type != UnitTypes.collaris) continue;
             Seq<Shield> shields = shieldMap.get(u);
             if (shields == null) continue;
 
-            // 统计每条路径上的护盾数量
-            int countA = 0, countB = 0, countC = 0, countD = 0;
+            // 统计各路径上的护盾数量
+            int cA = 0, cB = 0, cC = 0, cD = 0;
             for (Shield s : shields) {
                 if (s.currentPath == null || s.intercepting) continue;
                 switch (s.currentPath.type) {
-                    case A: countA++; break;
-                    case B: countB++; break;
-                    case C: countC++; break;
-                    case D: countD++; break;
+                    case A: cA++; break;
+                    case B: cB++; break;
+                    case C: cC++; break;
+                    case D: cD++; break;
                 }
             }
 
-            int idxA = 0, idxB = 0, idxC = 0, idxD = 0;
+            ShieldCluster cluster = unitToCluster.get(u);
+            float phaseC = cluster != null ? cluster.phaseC : 0f;
+            float phaseD = cluster != null ? cluster.phaseD : 0f;
+            float phaseA_u = phaseA.get(u, 0f);
+            float phaseB_u = phaseB.get(u, 0f);
+
+            int iA = 0, iB = 0, iC = 0, iD = 0;
             for (Shield s : shields) {
                 if (s.currentPath == null || s.intercepting) continue;
-                float t = 0f;
                 switch (s.currentPath.type) {
                     case A:
-                        t = (rot + idxA / (float) Math.max(1, countA)) % 1f;
-                        idxA++;
+                        s.targetPathParam = (phaseA_u + iA / (float) Math.max(1, cA)) % 1f;
+                        iA++;
                         break;
                     case B:
-                        t = (rot + idxB / (float) Math.max(1, countB)) % 1f;
-                        idxB++;
+                        s.targetPathParam = (phaseB_u + iB / (float) Math.max(1, cB)) % 1f;
+                        iB++;
                         break;
                     case C:
-                        t = (rot + idxC / (float) Math.max(1, countC)) % 1f;
-                        idxC++;
+                        s.targetPathParam = (phaseC + iC / (float) Math.max(1, cC)) % 1f;
+                        iC++;
                         break;
                     case D:
-                        t = (rot + idxD / (float) Math.max(1, countD)) % 1f;
-                        idxD++;
+                        s.targetPathParam = (phaseD + iD / (float) Math.max(1, cD)) % 1f;
+                        iD++;
                         break;
                 }
-                s.targetPathParam = t;
             }
         }
     }
