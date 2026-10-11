@@ -4,14 +4,17 @@ import arc.math.Mathf;
 import arc.math.geom.Vec2;
 import arc.struct.Seq;
 import arc.util.Time;
+import mindustry.Vars;
 import mindustry.content.UnitTypes;
+import mindustry.game.Team;
 import mindustry.gen.Bullet;
 import mindustry.gen.Groups;
 import mindustry.gen.Unit;
 
 public class InterceptSystem {
 
-    public static final float VISION_RADIUS = 48f;
+    // 检测半径：40格 = 320世界单位
+    public static final float VISION_RADIUS = 40f * 8f;
 
     public static void init() {
     }
@@ -34,6 +37,9 @@ public class InterceptSystem {
     }
 
     private static void handleClusterIntercept(ShieldCluster c, Seq<Bullet> bullets) {
+        if (c.units.isEmpty()) return;
+        Team team = c.units.first().team;
+
         bullets.sort((a, b) -> {
             float da = distToNearestUnit(a, c);
             float db = distToNearestUnit(b, c);
@@ -42,7 +48,8 @@ public class InterceptSystem {
 
         for (Bullet b : bullets) {
             if (!isEnemy(b, c)) continue;
-            if (!inVision(c.centroid, b)) continue;
+            if (!bulletVisible(team, b)) continue;
+            if (!withinPathCRange(c, b)) continue;   // 多单位：到路径C的距离 ≤ 40格
             if (hasAssignedShield(b)) continue;
             if (inOtherShieldRange(b, c)) continue;
 
@@ -61,6 +68,8 @@ public class InterceptSystem {
     }
 
     private static void handleSingleIntercept(Unit unitA, Seq<Bullet> bullets) {
+        Team team = unitA.team;
+
         bullets.sort((a, b) -> {
             float da = dist(unitA.x, unitA.y, a.x, a.y);
             float db = dist(unitA.x, unitA.y, b.x, b.y);
@@ -69,7 +78,8 @@ public class InterceptSystem {
 
         for (Bullet b : bullets) {
             if (!isEnemy(b, unitA)) continue;
-            if (!inVision(unitA.x, unitA.y, b)) continue;
+            if (!bulletVisible(team, b)) continue;
+            if (!withinUnitRange(unitA, b)) continue;   // 单单位：以单位为中心的40格
             if (hasAssignedShield(b)) continue;
 
             Shield assigned = tryAssignToPathSingle(unitA, ShieldPath.Type.B, b);
@@ -295,14 +305,36 @@ public class InterceptSystem {
         return bestT;
     }
 
-    private static boolean inVision(Vec2 center, Bullet b) {
-        return inVision(center.x, center.y, b);
+    // 弹幕是否对玩家可见（战争迷雾检查）
+    private static boolean bulletVisible(Team team, Bullet b) {
+        if (Vars.fogControl == null) return true;
+        return Vars.fogControl.isVisible(team, b.x, b.y);
     }
 
-    private static boolean inVision(float cx, float cy, Bullet b) {
-        float dx = cx - b.x;
-        float dy = cy - b.y;
+    // 单单位：弹幕是否在该单位的40格范围内
+    private static boolean withinUnitRange(Unit u, Bullet b) {
+        float dx = u.x - b.x;
+        float dy = u.y - b.y;
         return dx * dx + dy * dy <= VISION_RADIUS * VISION_RADIUS;
+    }
+
+    // 多单位：弹幕到路径C的距离 ≤ 40格
+    private static boolean withinPathCRange(ShieldCluster c, Bullet b) {
+        if (c.pathC == null) return false;
+
+        // 在路径C上采样，找到离弹幕最近的点
+        int samples = 64;
+        float minDistSq = Float.MAX_VALUE;
+        for (int i = 0; i < samples; i++) {
+            float t = i / (float) samples;
+            Vec2 pt = c.pathC.pointAt(t);
+            float dx = pt.x - b.x;
+            float dy = pt.y - b.y;
+            float d2 = dx * dx + dy * dy;
+            if (d2 < minDistSq) minDistSq = d2;
+            if (minDistSq <= 0.01f) break;
+        }
+        return minDistSq <= VISION_RADIUS * VISION_RADIUS;
     }
 
     private static boolean isEnemy(Bullet b, Unit owner) {
