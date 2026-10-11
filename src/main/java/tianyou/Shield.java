@@ -42,7 +42,6 @@ public class Shield {
             timeSinceDamage = 0f;
         }
 
-        // 不在拦截时，平滑调整 pathParam，并每帧从路径计算 position
         if (!intercepting && currentPath != null) {
             float diff = targetPathParam - pathParam;
             if (diff > 0.5f) diff -= 1f;
@@ -85,9 +84,12 @@ public class Shield {
     public void draw() {
         if (state == ShieldState.DESTROYED) return;
         if (currentPath == null) return;
-        if (tangent == null) return;
+        if (owner == null) return;
 
-        float angle = Mathf.atan2(tangent.y, tangent.x);
+        // 径向角度：从单位中心指向护盾位置
+        float radial = Mathf.atan2(position.y - owner.y, position.x - owner.x);
+        // 切线方向 = 径向旋转 90 度，保证长边沿切线方向
+        float angle = radial + Mathf.PI / 2f;
 
         // 长6格、宽2格、内凹0.2格
         float halfLen = 3f * 8f;    // 24 世界单位
@@ -98,6 +100,7 @@ public class Shield {
         for (int i = 0; i <= 8; i++) {
             float t = i / 8f;
             float lx = (t - 0.5f) * 2f * halfLen;
+            // 内凹面朝向单位中心（局部 y 轴负方向）
             float ly = -depth * (1f - (2f * t - 1f) * (2f * t - 1f));
             float wx = position.x + lx * Mathf.cos(angle) - ly * Mathf.sin(angle);
             float wy = position.y + lx * Mathf.sin(angle) + ly * Mathf.cos(angle);
