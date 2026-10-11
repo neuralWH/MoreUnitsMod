@@ -23,13 +23,11 @@ public class ShieldSystem {
     public static final float UPDATE_INTERVAL = 0.5f;
 
     // 护盾沿路径的线速度（世界单位/秒）
-    // 路径A半径48世界单位，周长约301.6，30单位/秒 => 约10秒一圈
     public static final float LINEAR_SPEED = 30f;
 
     private static boolean registered = false;
 
     public static void init() {
-        // 防止重复注册导致 update 被调用多次
         if (registered) return;
         registered = true;
 
@@ -118,9 +116,9 @@ public class ShieldSystem {
         }
     }
 
-    // 用 Time.time 直接计算相位，保证线速度 = LINEAR_SPEED
+    // 用 Time.time 计算相位。Time.time 单位是 tick，除以 60 转成秒
     private static void updateTargetPathParams() {
-        float t = Time.time;   // 总时间（秒）
+        float seconds = Time.time / 60f;
 
         for (Unit u : Groups.unit) {
             if (u.type != UnitTypes.collaris) continue;
@@ -133,24 +131,23 @@ public class ShieldSystem {
             float phaseA = 0f;
             float phaseB = 0f;
             if (a != null && a.length() > 0.01f) {
-                phaseA = (t * LINEAR_SPEED / a.length()) % 1f;
+                phaseA = (seconds * LINEAR_SPEED / a.length()) % 1f;
             }
             if (b != null && b.length() > 0.01f) {
-                phaseB = (t * LINEAR_SPEED / b.length()) % 1f;
+                phaseB = (seconds * LINEAR_SPEED / b.length()) % 1f;
             }
 
             ShieldCluster cluster = unitToCluster.get(u);
             float phaseC = cluster != null ? cluster.phaseC : 0f;
             float phaseD = cluster != null ? cluster.phaseD : 0f;
 
-            // 簇级相位也用 Time.time 计算
             if (cluster != null) {
                 if (cluster.pathC != null && cluster.pathC.length() > 0.01f) {
-                    phaseC = (t * LINEAR_SPEED / cluster.pathC.length()) % 1f;
+                    phaseC = (seconds * LINEAR_SPEED / cluster.pathC.length()) % 1f;
                     cluster.phaseC = phaseC;
                 }
                 if (cluster.pathD != null && cluster.pathD.length() > 0.01f) {
-                    phaseD = (t * LINEAR_SPEED / cluster.pathD.length()) % 1f;
+                    phaseD = (seconds * LINEAR_SPEED / cluster.pathD.length()) % 1f;
                     cluster.phaseD = phaseD;
                 }
             }
