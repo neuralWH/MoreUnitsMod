@@ -49,7 +49,7 @@ public class Shield {
             if (diff < -0.5f) diff += 1f;
 
             float speed = delta / 0.5f;
-            if (Mathf.abs(diff) > speed) {
+            if (Math.abs(diff) > speed) {
                 pathParam = (pathParam + Mathf.sign(diff) * speed + 1f) % 1f;
             } else {
                 pathParam = targetPathParam;
@@ -114,6 +114,6 @@ public class Shield {
         float dy = by - position.y;
         float localX = dx * Mathf.cos(-angle) - dy * Mathf.sin(-angle);
         float localY = dx * Mathf.sin(-angle) + dy * Mathf.cos(-angle);
-        return Mathf.abs(localX) <= 24f && Mathf.abs(localY) <= 8f;
+        return Math.abs(localX) <= 24f && Math.abs(localY) <= 8f;
     }
 }
